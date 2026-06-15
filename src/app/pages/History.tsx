@@ -8,32 +8,47 @@ export function History() {
   const { events } = useEvents();
 
   const handleExportCSV = () => {
-    // Cabeçalhos do CSV traduzidos
-    const headers = ['ID', 'Horário', 'Evento', 'Movimento', 'SpO2', 'Freq. Cardíaca'];
+  // Cabeçalhos do CSV traduzidos
+  const headers = ['ID', 'Horário_ISO', 'Data_Local', 'Hora_Local', 'Evento', 'Movimento', 'SpO2', 'Freq_Cardiaca_BPM'];
 
-    const rows = events.map(e => [
+  const rows = events.map(e => {
+    const dateObj = new Date(e.timestamp);
+    const localDate = dateObj.toLocaleDateString('pt-BR');
+    const localTime = dateObj.toLocaleTimeString('pt-BR');
+    
+    // Envelopa os textos em aspas e duplica aspas internas se existirem (Padrão RFC 4180)
+    const cleanLabel = `"${e.label.replace(/"/g, '""')}"`;
+    const cleanMovement = `"${e.movement.replace(/"/g, '""')}"`;
+
+    return [
       e.id,
-      new Date(e.timestamp).toISOString(),
-      e.label,
-      e.movement,
+      dateObj.toISOString(),
+      localDate,
+      localTime,
+      cleanLabel,
+      cleanMovement,
       e.spo2,
       e.heartRate
-    ]);
-    
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(r => r.join(','))
+    ];
+  });
+  
+    // O '\uFEFF' garante que o Excel abra o arquivo sabendo que é UTF-8 (corrige acentos)
+    const csvContent = '\uFEFF' + [
+      headers.join(';'),
+      ...rows.map(r => r.join(';'))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
+    
     // Nome do arquivo traduzido
     link.setAttribute('download', `historico-eventos-${format(new Date(), 'yyyy-MM-dd')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url); // Boa prática para limpar a memória do navegador
   };
 
   return (
