@@ -16,7 +16,7 @@ export function History() {
     const localDate = dateObj.toLocaleDateString('pt-BR');
     const localTime = dateObj.toLocaleTimeString('pt-BR');
     
-    // Envelopa os textos em aspas e duplica aspas internas se existirem (Padrão RFC 4180)
+    // Envelopa os textos em aspas e duplica aspas internas se existirem
     const cleanLabel = `"${e.label.replace(/"/g, '""')}"`;
     const cleanMovement = `"${e.movement.replace(/"/g, '""')}"`;
 
@@ -32,7 +32,6 @@ export function History() {
     ];
   });
   
-    // O '\uFEFF' garante que o Excel abra o arquivo sabendo que é UTF-8 (corrige acentos)
     const csvContent = '\uFEFF' + [
       headers.join(';'),
       ...rows.map(r => r.join(';'))
@@ -48,7 +47,7 @@ export function History() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url); // Boa prática para limpar a memória do navegador
+    URL.revokeObjectURL(url);
   };
 
   return (
