@@ -5,7 +5,7 @@ import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 const generateData = (count: number) => {
   return Array.from({ length: count }).map((_, i) => ({
     time: i,
-    gsr: 10 + Math.random() * 5,
+    spo2: 97 + Math.random() * 3,
     hr: 70 + Math.random() * 15,
     accX: Math.random() * 2 - 1,
     accY: Math.random() * 2 - 1,
@@ -25,7 +25,7 @@ export function Dashboard() {
         const last = next[next.length - 1];
         next.push({
           time: last.time + 1,
-          gsr: 10 + Math.random() * 5,
+          spo2: 97 + Math.random() * 3,
           hr: 70 + Math.random() * 15,
           accX: Math.random() * 2 - 1,
           accY: Math.random() * 2 - 1,
@@ -38,6 +38,10 @@ export function Dashboard() {
   }, [connected]);
 
   const current = data[data.length - 1];
+  const movementLevel = Math.abs(Math.sqrt(current.accX ** 2 + current.accY ** 2 + current.accZ ** 2) - 9.8);
+  const movementBars = movementLevel < 0.3 ? 1 : movementLevel < 1.0 ? 3 : 5;
+
+  const movementStatus = movementLevel < 0.3 ? 'Baixo' : movementLevel < 1.0 ? 'Moderado' : 'Alto';
 
   return (
     <div className="p-6 pb-8 space-y-5 animate-in fade-in duration-500">
@@ -55,24 +59,40 @@ export function Dashboard() {
         </button>
       </header>
 
-      {/* Card de Resposta Galvânica (GSR) */}
+      {/* Card de SpO2 */}
       <div className="bg-white p-5 rounded-[1.5rem] shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-slate-100">
         <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-3 text-teal-600">
-            <div className="p-2.5 bg-teal-50/80 rounded-xl">
+          <div className="flex items-center gap-3 text-blue-500">
+            <div className="p-2.5 bg-blue-50/80 rounded-xl">
               <Activity size={20} strokeWidth={2.5} />
             </div>
-            <span className="font-semibold tracking-tight text-slate-700">Resp. Galvânica</span>
+            <span className="font-semibold tracking-tight text-slate-700">
+              Oxigenação
+            </span>
           </div>
+
           <div className="text-right">
-            <div className="text-2xl font-bold text-slate-800">{current.gsr.toFixed(1)} <span className="text-sm font-medium text-slate-400">μS</span></div>
+            <div className="text-2xl font-bold text-slate-800">
+              {current.spo2.toFixed(0)}
+              <span className="text-sm font-medium text-slate-400">
+                %
+              </span>
+            </div>
           </div>
         </div>
+
         <div className="h-16 w-full mt-2 -ml-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
-              <YAxis domain={['auto', 'auto']} hide />
-              <Line type="monotone" dataKey="gsr" stroke="#0d9488" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+              <YAxis domain={[90, 100]} hide />
+              <Line
+                type="monotone"
+                dataKey="spo2"
+                stroke="#3b82f6"
+                strokeWidth={2.5}
+                dot={false}
+                isAnimationActive={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -110,10 +130,23 @@ export function Dashboard() {
             </div>
             <span className="font-semibold tracking-tight text-slate-700">Movimento</span>
           </div>
-          <div className="flex gap-3 text-xs text-slate-500 font-mono font-medium">
-            <span>X:{current.accX.toFixed(1)}</span>
-            <span>Y:{current.accY.toFixed(1)}</span>
-            <span>Z:{current.accZ.toFixed(1)}</span>
+          <div className="text-right">
+            <div className="flex gap-1 justify-end mb-1">
+              {[1, 2, 3, 4, 5].map((bar) => (
+                <div
+                  key={bar}
+                  className={`h-4 w-2 rounded-full ${
+                    bar <= movementBars
+                      ? 'bg-blue-500'
+                      : 'bg-slate-200'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <div className="text-sm font-semibold text-slate-700">
+              {movementStatus}
+            </div>
           </div>
         </div>
         <div className="h-16 w-full mt-2 -ml-2">
