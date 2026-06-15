@@ -1,6 +1,6 @@
 import { RouterProvider } from 'react-router';
-import { router } from './routes';
-import { EventProvider } from './context/EventContext';
+import { router } from './app/routes/routes';
+import { EventProvider } from './app/context/EventContext';
 
 export default function App() {
   return (

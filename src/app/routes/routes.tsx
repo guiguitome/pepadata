@@ -1,9 +1,10 @@
-import { createBrowserRouter } from "react-router";
-import { Layout } from "./components/Layout";
-import { Dashboard } from "./pages/Dashboard";
-import { Trigger } from "./pages/Trigger";
-import { History } from "./pages/History";
-import { CalendarLog } from "./pages/CalendarLog";
+// @ts-ignore
+import { createBrowserRouter } from "react-router-dom";
+import { Layout } from "../components/Layout";
+import { Dashboard } from "../pages/Dashboard";
+import { Trigger } from "../pages/Trigger";
+import { History } from "../pages/History";
+import { CalendarLog } from "../pages/CalendarLog";
 
 export const router = createBrowserRouter([
   {
