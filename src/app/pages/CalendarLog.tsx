@@ -113,13 +113,33 @@ export function CalendarLog() {
                      </p>
                     {item.type === 'bio' ? (
                       <div>
-                        <h3 className="font-semibold text-slate-800">{item.label}</h3>
-                        <p className="text-xs text-slate-500">{item.gsr} μS | {item.heartRate} BPM</p>
+                        <h3 className="font-semibold text-slate-800">
+                          {item.label}
+                        </h3>
+
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          <span className="text-[11px] px-2 py-1 rounded-full bg-teal-50 text-teal-700">
+                            Movimento: {item.movement}
+                          </span>
+
+                          <span className="text-[11px] px-2 py-1 rounded-full bg-blue-50 text-blue-700">
+                            SpO₂: {item.spo2}%
+                          </span>
+
+                          <span className="text-[11px] px-2 py-1 rounded-full bg-rose-50 text-rose-700">
+                            {item.heartRate} BPM
+                          </span>
+                        </div>
                       </div>
                     ) : (
                       <div>
-                        <h3 className="font-semibold text-slate-800">{item.name}</h3>
-                        <p className="text-sm text-slate-500">Dosagem: {item.dosage}</p>
+                        <h3 className="font-semibold text-slate-800">
+                          {item.name}
+                        </h3>
+
+                        <p className="text-sm text-slate-500">
+                          Dosagem: {item.dosage}
+                        </p>
                       </div>
                     )}
                   </div>

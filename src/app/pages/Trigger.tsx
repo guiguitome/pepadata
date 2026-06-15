@@ -22,8 +22,9 @@ export function Trigger() {
     // Simulação de dados (substituir pelos dados reais do sensor depois)
     const fakeGsr = parseFloat((10 + Math.random() * 5).toFixed(1));
     const fakeHr = Math.round(70 + Math.random() * 15);
+    const eventTimestamp = new Date().toISOString();
     
-    addEvent(selectedLabel, fakeGsr, fakeHr);
+    addEvent(selectedLabel, fakeGsr, fakeHr, eventTimestamp);
     
     setRecorded(true);
     setTimeout(() => {
