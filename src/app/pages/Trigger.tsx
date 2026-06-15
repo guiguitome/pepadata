@@ -18,15 +18,33 @@ export function Trigger() {
 
   const handleRecord = () => {
     if (!selectedLabel) return;
-    
-    // Simulação de dados (substituir pelos dados reais do sensor depois)
-    const fakeGsr = parseFloat((10 + Math.random() * 5).toFixed(1));
-    const fakeHr = Math.round(70 + Math.random() * 15);
-    const eventTimestamp = new Date().toISOString();
-    
-    addEvent(selectedLabel, fakeGsr, fakeHr, eventTimestamp);
-    
+
+    const fakeMovementOptions = [
+      'Baixo',
+      'Moderado',
+      'Alto'
+    ];
+
+    const fakeMovement =
+      fakeMovementOptions[
+        Math.floor(Math.random() * fakeMovementOptions.length)
+      ];
+
+    const fakeSpo2 =
+      Math.round(96 + Math.random() * 3);
+
+    const fakeHr =
+      Math.round(70 + Math.random() * 20);
+
+    addEvent(
+      selectedLabel,
+      fakeMovement,
+      fakeSpo2,
+      fakeHr
+    );
+
     setRecorded(true);
+
     setTimeout(() => {
       setRecorded(false);
       setSelectedLabel(null);
