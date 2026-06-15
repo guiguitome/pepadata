@@ -77,6 +77,7 @@ export function History() {
           <ul className="divide-y divide-slate-50">
             {events.map((event) => (
               <li key={event.id} className="p-5 hover:bg-slate-50/50 transition-colors flex flex-col gap-3">
+                {/* Cabeçalho do Card: Evento e Horário */}
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-semibold text-slate-800 tracking-tight text-base">{event.label}</div>
@@ -87,37 +88,58 @@ export function History() {
                   </div>
                 </div>
                 
-                <div className="flex gap-3 pt-2">
-                  <div className="flex-1 bg-slate-50 rounded-xl p-2.5 flex items-center justify-between border border-slate-100/50">
+                {/* Container das Métricas: Mantém sempre dois blocos lado a lado */}
+                <div className="grid grid-cols-2 gap-3 pt-1 w-full">
+                  
+                  {/* Bloco de Movimento */}
+                  <div className="bg-slate-50 rounded-xl p-3 flex flex-col justify-between gap-2 border border-slate-100/50 min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-teal-600">
-                      <Activity size={14} />
-                      Movimento
+                      <Activity size={14} className="shrink-0" />
+                      <span>Movimento</span>
                     </div>
-                    <div className="font-bold text-sm text-slate-700">{event.movement} </div>
+                    
+                    {/* Badge Dinâmico centralizado e com largura total controlada */}
+                    <div className="flex justify-start">
+                      {(() => {
+                        const text = event.movement.replace(/"/g, '').trim();
+                        let badgeColors = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
+                        
+                        if (text === 'Moderado') {
+                          badgeColors = "bg-amber-50 text-amber-700 border-amber-200/60";
+                        } else if (text === 'Intenso') {
+                          badgeColors = "bg-rose-50 text-rose-700 border-rose-200/60";
+                        }
+
+                        return (
+                          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badgeColors} whitespace-nowrap`}>
+                            {text}
+                          </span>
+                        );
+                      })()}
+                    </div>
                   </div>
-                  <div className="flex-1 bg-slate-50 rounded-xl p-2.5 flex items-center justify-between border border-slate-100/50">
+
+                  {/* Bloco de Oxigenação */}
+                  <div className="bg-slate-50 rounded-xl p-3 flex flex-col justify-between gap-2 border border-slate-100/50 min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-500">
-                      <Droplets size={14} />
-                      Oxigenação
+                      <Droplets size={14} className="shrink-0" />
+                      <span>Oxigenação</span>
                     </div>
-                    <div className="font-bold text-sm text-slate-700">{event.spo2} <span className="font-normal text-slate-400 text-[10px]">%</span></div>
+                    <div className="font-bold text-sm text-slate-700 pt-0.5">
+                      {event.spo2} <span className="font-normal text-slate-400 text-[10px]">%</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50 rounded-xl p-3 flex items-center justify-between border border-slate-100/50 mt-3">
-                
-                  <div className="flex items-center gap-2 text-rose-500">
-                    <Heart size={18} />
-                    <span className="font-semibold">
-                      Frequência Cardíaca
-                    </span>
+                {/* Bloco de Frequência Cardíaca */}
+                <div className="bg-slate-50 rounded-xl p-3 flex items-center justify-between border border-slate-100/50 w-full mt-1">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-500">
+                    <Heart size={14} className="shrink-0" />
+                    <span>Frequência Cardíaca</span>
                   </div>
 
-                  <div className="font-bold text-xl text-slate-700">
-                    {event.heartRate}
-                    <span className="ml-1 text-sm text-slate-400">
-                      BPM
-                    </span>
+                  <div className="font-bold text-sm text-slate-700">
+                    {event.heartRate} <span className="font-normal text-slate-400 text-[10px]">BPM</span>
                   </div>
                 </div>
               </li>
