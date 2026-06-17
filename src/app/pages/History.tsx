@@ -8,30 +8,53 @@ export function History() {
   const { events } = useEvents();
 
   const handleExportCSV = () => {
-  // Cabeçalhos do CSV traduzidos
-  const headers = ['ID', 'Horário_ISO', 'Data_Local', 'Hora_Local', 'Evento', 'Movimento', 'SpO2', 'Freq_Cardiaca_BPM'];
-
-  const rows = events.map(e => {
-    const dateObj = new Date(e.timestamp);
-    const localDate = dateObj.toLocaleDateString('pt-BR');
-    const localTime = dateObj.toLocaleTimeString('pt-BR');
-    
-    // Envelopa os textos em aspas e duplica aspas internas se existirem
-    const cleanLabel = `"${e.label.replace(/"/g, '""')}"`;
-    const cleanMovement = `"${e.movement.replace(/"/g, '""')}"`;
-
-    return [
-      e.id,
-      dateObj.toISOString(),
-      localDate,
-      localTime,
-      cleanLabel,
-      cleanMovement,
-      e.spo2,
-      e.heartRate
+    const headers = [
+      'event_id', 
+      'timestamp_utc', 
+      'local_date', 
+      'local_time', 
+      'event_label', 
+      'movement_class',      
+      'acceleration_max_g',  
+      'spo2_percentage', 
+      'heart_rate_bpm'
     ];
-  });
-  
+
+    const rows = events.map(e => {
+      const dateObj = new Date(e.timestamp);
+      
+      const localDate = dateObj.getFullYear() + '-' + 
+                        String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(dateObj.getDate()).padStart(2, '0');
+      
+      const localTime = dateObj.toLocaleTimeString('pt-BR');
+      
+      const cleanLabel = `"${e.label.replace(/"/g, '""')}"`;
+      const technicalMovement = `"${e.movement.replace(/"/g, '').toUpperCase().trim()}"`;
+      
+      let standardizedId = String(e.id).trim();
+      if (!isNaN(Number(standardizedId))) {
+        standardizedId = `evt_${standardizedId.padStart(3, '0')}`;
+      }
+      const cleanId = `"${standardizedId}"`;
+
+      const rawGForce = e.accelerationMaxG 
+        ? String(Number(e.accelerationMaxG).toFixed(2)).replace('.', ',') 
+        : "1,00";
+
+      return [
+        cleanId,
+        dateObj.toISOString(), 
+        localDate,
+        localTime,
+        cleanLabel,
+        technicalMovement,
+        rawGForce,            
+        Number(e.spo2),       
+        Number(e.heartRate)   
+      ];
+    });
+    
     const csvContent = '\uFEFF' + [
       headers.join(';'),
       ...rows.map(r => r.join(';'))
@@ -42,8 +65,8 @@ export function History() {
     const link = document.createElement('a');
     link.href = url;
     
-    // Nome do arquivo traduzido
-    link.setAttribute('download', `historico-eventos-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    const fileTimestamp = format(new Date(), 'yyyyMMdd_HHmmss');
+    link.setAttribute('download', `telemetry_report_${fileTimestamp}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

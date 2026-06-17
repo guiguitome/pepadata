@@ -7,6 +7,7 @@ export interface BioEvent {
   spo2: number;
   heartRate: number;
   movement: string;
+  accelerationMaxG?: number;
 }
 
 export interface MedicationLog {
@@ -18,7 +19,7 @@ export interface MedicationLog {
 
 interface EventContextType {
   events: BioEvent[];
-  addEvent: (label: string, movement: string, spo2: number, heartRate: number) => void;
+  addEvent: (label: string, movement: string, spo2: number, heartRate: number, accelerationMaxG?: number) => void;
   medications: MedicationLog[];
   addMedication: (name: string, dosage: string) => void;
 }
@@ -30,41 +31,39 @@ export const EventContext = createContext<EventContextType>({
   addMedication: () => {}
 });
 
-// Chaves para salvar no LocalStorage
 const EVENTS_STORAGE_KEY = 'pepadata_events';
 const MEDS_STORAGE_KEY = 'pepadata_medications';
 
 export const EventProvider = ({ children }: { children: React.ReactNode }) => {
   
-  // 1. Inicializa os Eventos buscando do LocalStorage ou usando seus dados padrão
   const [events, setEvents] = useState<BioEvent[]>(() => {
     const localData = localStorage.getItem(EVENTS_STORAGE_KEY);
     if (localData) return JSON.parse(localData);
 
-    // Se o banco estiver vazio, coloca seus dados iniciais para teste
-    const initialEvents = [
+    const initialEvents: BioEvent[] = [
       {
-        id: '1',
+        id: 'evt_001', // Padronizado
         timestamp: new Date(Date.now() - 3600000).toISOString(),
         label: 'Stress',
         movement: 'Moderado',
         spo2: 98,
-        heartRate: 85
+        heartRate: 85,
+        accelerationMaxG: 1.32
       },
       {
-        id: '2',
+        id: 'evt_002', // Padronizado
         timestamp: new Date(Date.now() - 7200000).toISOString(),
         label: 'Loud Noise',
         movement: 'Intenso',
         spo2: 96,
-        heartRate: 92
+        heartRate: 92,
+        accelerationMaxG: 1.85
       }
     ];
     localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(initialEvents));
     return initialEvents;
   });
 
-  // 2. Inicializa os Medicamentos buscando do LocalStorage ou usando seus dados padrão
   const [medications, setMedications] = useState<MedicationLog[]>(() => {
     const localData = localStorage.getItem(MEDS_STORAGE_KEY);
     if (localData) return JSON.parse(localData);
@@ -77,28 +76,30 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
     return initialMeds;
   });
 
-  // 3. Adiciona o evento no estado E atualiza o banco local
   const addEvent = (
     label: string,
     movement: string,
     spo2: number,
-    heartRate: number
+    heartRate: number,
+    accelerationMaxG?: number
   ) => {
+    const randomHash = Math.random().toString(36).substring(2, 7);
+    
     const newEvent: BioEvent = {
-      id: Math.random().toString(36).substring(7),
+      id: `evt_${randomHash}`,
       timestamp: new Date().toISOString(),
       label,
       movement,
       spo2,
-      heartRate
+      heartRate,
+      accelerationMaxG: accelerationMaxG !== undefined ? accelerationMaxG : 1.00
     };
     
     const updatedEvents = [newEvent, ...events];
     setEvents(updatedEvents);
-    localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(updatedEvents)); // Salva no banco
+    localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(updatedEvents));
   };
 
-  // 4. Adiciona o medicamento no estado E atualiza o banco local
   const addMedication = (name: string, dosage: string) => {
     const newMed: MedicationLog = {
       id: Math.random().toString(36).substring(7),
@@ -109,7 +110,7 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
     
     const updatedMeds = [newMed, ...medications];
     setMedications(updatedMeds);
-    localStorage.setItem(MEDS_STORAGE_KEY, JSON.stringify(updatedMeds)); // Salva no banco
+    localStorage.setItem(MEDS_STORAGE_KEY, JSON.stringify(updatedMeds));
   };
 
   return (
@@ -117,6 +118,6 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </EventContext.Provider>
   );
-}
+};
 
 export const useEvents = () => useContext(EventContext);

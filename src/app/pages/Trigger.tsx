@@ -11,6 +11,28 @@ const LABELS = [
   { id: 'exercise', label: 'Exercício Físico', icon: Dumbbell },
 ];
 
+// ============================================================================
+// FUNÇÃO DE MAPEAMENTO DO ADXL345
+// ============================================================================
+const getADXL345Data = (movementIntensity: string): number => {
+  // MODO ATUAL: Simulação
+  let simulatedG = 1.00;
+  
+  if (movementIntensity === 'Moderado') {
+    simulatedG = 1.15 + Math.random() * 0.3; // 1.15g a 1.45g
+  } else if (movementIntensity === 'Alto' || movementIntensity === 'Intenso') {
+    simulatedG = 1.55 + Math.random() * 0.8; // 1.55g a 2.35g
+  } else {
+    simulatedG = 1.00 + Math.random() * 0.08; // Baixo ou Repouso (1g)
+  }
+  
+  return Number(simulatedG.toFixed(2));
+
+  // MODO FUTURO
+  // codigo que ainda nao existe
+  // return hardwareSensorValue;
+};
+
 export function Trigger() {
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const [recorded, setRecorded] = useState(false);
@@ -30,17 +52,17 @@ export function Trigger() {
         Math.floor(Math.random() * fakeMovementOptions.length)
       ];
 
-    const fakeSpo2 =
-      Math.round(96 + Math.random() * 3);
+    const fakeSpo2 = Math.round(96 + Math.random() * 3);
+    const fakeHr = Math.round(70 + Math.random() * 20);
 
-    const fakeHr =
-      Math.round(70 + Math.random() * 20);
+    const accelerationG = getADXL345Data(fakeMovement);
 
     addEvent(
       selectedLabel,
       fakeMovement,
       fakeSpo2,
-      fakeHr
+      fakeHr,
+      accelerationG
     );
 
     setRecorded(true);
