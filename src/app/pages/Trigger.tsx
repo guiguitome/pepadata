@@ -40,30 +40,7 @@ export function Trigger() {
 
   const handleRecord = () => {
     if (!selectedLabel) return;
-
-    const fakeMovementOptions = [
-      'Baixo',
-      'Moderado',
-      'Alto'
-    ];
-
-    const fakeMovement =
-      fakeMovementOptions[
-        Math.floor(Math.random() * fakeMovementOptions.length)
-      ];
-
-    const fakeSpo2 = Math.round(96 + Math.random() * 3);
-    const fakeHr = Math.round(70 + Math.random() * 20);
-
-    const accelerationG = getADXL345Data(fakeMovement);
-
-    addEvent(
-      selectedLabel,
-      fakeMovement,
-      fakeSpo2,
-      fakeHr,
-      accelerationG
-    );
+    addEvent(selectedLabel);
 
     setRecorded(true);
 
