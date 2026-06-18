@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Mic, MapPin, Activity, AlertCircle, Dumbbell } from 'lucide-react';
 import { useEvents } from '../context/EventContext';
@@ -12,10 +12,9 @@ const LABELS = [
 ];
 
 // ============================================================================
-// FUNÇÃO DE MAPEAMENTO DO ADXL345
+// FUNÇÃO DE MAPEAMENTO DO ADXL345 (TEMPORÁRIO)
 // ============================================================================
 const getADXL345Data = (movementIntensity: string): number => {
-  // MODO ATUAL: Simulação
   let simulatedG = 1.00;
   
   if (movementIntensity === 'Moderado') {
@@ -27,16 +26,35 @@ const getADXL345Data = (movementIntensity: string): number => {
   }
   
   return Number(simulatedG.toFixed(2));
-
-  // MODO FUTURO
-  // codigo que ainda nao existe
-  // return hardwareSensorValue;
 };
 
 export function Trigger() {
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const [recorded, setRecorded] = useState(false);
-  const { addEvent } = useEvents();
+  
+  const { addEvent, handleIncomingData } = useEvents();
+
+  // ============================================================================
+  // SIMULADOR DE TELEMETRIA
+  // ============================================================================
+  useEffect(() => {
+    const intervaloSensor = setInterval(() => {
+      // Sorteia uma intensidade genérica para manter o acelerômetro simulado oscilando
+      const intensidades = ['Baixo', 'Moderado', 'Alto'];
+      const intensidadeSorteada = intensidades[Math.floor(Math.random() * intensidades.length)];
+
+      // Payload dinâmico e direto. Ponto central perfeito para plugar o hardware depois.
+      const leituraInstantanea = {
+        spo2: Math.floor(Math.random() * (100 - 95 + 1)) + 95,        // Variando de 95% a 100%
+        heartRate: Math.floor(Math.random() * (115 - 65 + 1)) + 65,   // Variando de 65 a 115 BPM
+        accelerationG: getADXL345Data(intensidadeSorteada)
+      };
+
+      handleIncomingData(leituraInstantanea);
+    }, 1000);
+
+    return () => clearInterval(intervaloSensor);
+  }, [handleIncomingData]); // Totalmente isolado do estado do componente
 
   const handleRecord = async () => {
     if (!selectedLabel) return;

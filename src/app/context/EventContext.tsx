@@ -21,13 +21,15 @@ interface EventContextType {
   addEvent: (label: string) => Promise<void>; 
   medications: MedicationLog[];
   addMedication: (name: string, dosage: string) => void;
+  handleIncomingData: (reading: SensorReading) => void;
 }
 
 export const EventContext = createContext<EventContextType>({
   events: [],
   addEvent: async () => {},
   medications: [],
-  addMedication: () => {}
+  addMedication: () => {},
+  handleIncomingData: () => {}
 });
 
 const MEDS_STORAGE_KEY = 'pepadata_medications';
@@ -90,7 +92,7 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <EventContext.Provider value={{ events, addEvent, medications, addMedication }}>
+    <EventContext.Provider value={{ events, addEvent, medications, addMedication, handleIncomingData }}>
       {children}
     </EventContext.Provider>
   );
