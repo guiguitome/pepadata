@@ -38,9 +38,10 @@ export function Trigger() {
   const [recorded, setRecorded] = useState(false);
   const { addEvent } = useEvents();
 
-  const handleRecord = () => {
+  const handleRecord = async () => {
     if (!selectedLabel) return;
-    addEvent(selectedLabel);
+    
+    await addEvent(selectedLabel); 
 
     setRecorded(true);
 
