@@ -1,7 +1,7 @@
 import { useEvents } from '../context/EventContext';
 import { Download, Calendar, Activity, Heart, Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale'; // Localização para português
+import { ptBR } from 'date-fns/locale';
 import { Droplets } from 'lucide-react';
 
 export function History() {
@@ -29,8 +29,9 @@ export function History() {
       
       const localTime = dateObj.toLocaleTimeString('pt-BR');
       
-      const cleanLabel = `"${e.label.replace(/"/g, '""')}"`;
-      const technicalMovement = `"${e.movement.replace(/"/g, '').toUpperCase().trim()}"`;
+      // Corrigido para ler eventType e movementClass
+      const cleanLabel = `"${(e.eventType || '').replace(/"/g, '""')}"`;
+      const technicalMovement = `"${(e.movementClass || '').replace(/"/g, '').toUpperCase().trim()}"`;
       
       let standardizedId = String(e.id).trim();
       if (!isNaN(Number(standardizedId))) {
@@ -51,7 +52,7 @@ export function History() {
         technicalMovement,
         rawGForce,            
         Number(e.spo2),       
-        Number(e.heartRate)   
+        Number(e.bpm) // Corrigido para ler bpm
       ];
     });
     
@@ -100,10 +101,10 @@ export function History() {
           <ul className="divide-y divide-slate-50">
             {events.map((event) => (
               <li key={event.id} className="p-5 hover:bg-slate-50/50 transition-colors flex flex-col gap-3">
-                {/* Cabeçalho do Card: Evento e Horário */}
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-semibold text-slate-800 tracking-tight text-base">{event.label}</div>
+                    {/* Corrigido para ler eventType */}
+                    <div className="font-semibold text-slate-800 tracking-tight text-base">{event.eventType}</div>
                     <div className="text-xs font-medium text-slate-400 mt-1 flex items-center gap-1.5">
                       <Clock size={12} />
                       {format(new Date(event.timestamp), "d 'de' MMM, yyyy • HH:mm:ss", { locale: ptBR })}
@@ -111,25 +112,22 @@ export function History() {
                   </div>
                 </div>
                 
-                {/* Container das Métricas: Mantém sempre dois blocos lado a lado */}
                 <div className="grid grid-cols-2 gap-3 pt-1 w-full">
-                  
-                  {/* Bloco de Movimento */}
                   <div className="bg-slate-50 rounded-xl p-3 flex flex-col justify-between gap-2 border border-slate-100/50 min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-teal-600">
                       <Activity size={14} className="shrink-0" />
                       <span>Movimento</span>
                     </div>
                     
-                    {/* Badge Dinâmico centralizado e com largura total controlada */}
                     <div className="flex justify-start">
                       {(() => {
-                        const text = event.movement.replace(/"/g, '').trim();
+                        // Corrigido para ler movementClass
+                        const text = (event.movementClass || '').replace(/"/g, '').trim();
                         let badgeColors = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
                         
-                        if (text === 'Moderado') {
+                        if (text === 'MODERADO') {
                           badgeColors = "bg-amber-50 text-amber-700 border-amber-200/60";
-                        } else if (text === 'Intenso') {
+                        } else if (text === 'INTENSO') {
                           badgeColors = "bg-rose-50 text-rose-700 border-rose-200/60";
                         }
 
@@ -142,7 +140,6 @@ export function History() {
                     </div>
                   </div>
 
-                  {/* Bloco de Oxigenação */}
                   <div className="bg-slate-50 rounded-xl p-3 flex flex-col justify-between gap-2 border border-slate-100/50 min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-500">
                       <Droplets size={14} className="shrink-0" />
@@ -154,7 +151,6 @@ export function History() {
                   </div>
                 </div>
 
-                {/* Bloco de Frequência Cardíaca */}
                 <div className="bg-slate-50 rounded-xl p-3 flex items-center justify-between border border-slate-100/50 w-full mt-1">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-500">
                     <Heart size={14} className="shrink-0" />
@@ -162,7 +158,8 @@ export function History() {
                   </div>
 
                   <div className="font-bold text-sm text-slate-700">
-                    {event.heartRate} <span className="font-normal text-slate-400 text-[10px]">BPM</span>
+                    {/* Corrigido para ler bpm */}
+                    {event.bpm} <span className="font-normal text-slate-400 text-[10px]">BPM</span>
                   </div>
                 </div>
               </li>

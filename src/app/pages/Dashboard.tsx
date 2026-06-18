@@ -6,7 +6,7 @@ const generateData = (count: number) => {
   return Array.from({ length: count }).map((_, i) => ({
     time: i,
     spo2: 97 + Math.random() * 3,
-    hr: 70 + Math.random() * 15,
+    heartRate: 70 + Math.random() * 15,
     accX: Math.random() * 2 - 1,
     accY: Math.random() * 2 - 1,
     accZ: 9.8 + Math.random() * 0.5,
@@ -26,7 +26,7 @@ export function Dashboard() {
         next.push({
           time: last.time + 1,
           spo2: 97 + Math.random() * 3,
-          hr: 70 + Math.random() * 15,
+          heartRate: 70 + Math.random() * 15,
           accX: Math.random() * 2 - 1,
           accY: Math.random() * 2 - 1,
           accZ: 9.8 + Math.random() * 0.5,
@@ -108,14 +108,14 @@ export function Dashboard() {
             <span className="font-semibold tracking-tight text-slate-700">Frequência Cardíaca</span>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-slate-800">{Math.round(current.hr)} <span className="text-sm font-medium text-slate-400">BPM</span></div>
+            <div className="text-2xl font-bold text-slate-800">{Math.round(current.heartRate)} <span className="text-sm font-medium text-slate-400">BPM</span></div>
           </div>
         </div>
         <div className="h-16 w-full mt-2 -ml-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
               <YAxis domain={[50, 120]} hide />
-              <Line type="monotone" dataKey="hr" stroke="#f43f5e" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="heartRate" stroke="#f43f5e" strokeWidth={2.5} dot={false} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
