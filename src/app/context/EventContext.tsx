@@ -34,6 +34,22 @@ export const EventContext = createContext<EventContextType>({
 
 const MEDS_STORAGE_KEY = 'pepadata_medications';
 
+// Simulação do ADXL345 (Global)
+const getADXL345DataGlobal = (): number => {
+  const intensidades = ['Baixo', 'Moderado', 'Alto'];
+  const intensidadeSorteada = intensidades[Math.floor(Math.random() * intensidades.length)];
+  let simulatedG = 1.00;
+  
+  if (intensidadeSorteada === 'Moderado') {
+    simulatedG = 1.15 + Math.random() * 0.3;
+  } else if (intensidadeSorteada === 'Alto') {
+    simulatedG = 1.55 + Math.random() * 0.8;
+  } else {
+    simulatedG = 1.00 + Math.random() * 0.08;
+  }
+  return Number(simulatedG.toFixed(2));
+};
+
 export const EventProvider = ({ children }: { children: React.ReactNode }) => {
   const [events, setEvents] = useState<BioEvent[]>([]);
   const [medications, setMedications] = useState<MedicationLog[]>(() => {
@@ -41,13 +57,11 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
     return localData ? JSON.parse(localData) : [];
   });
   
-  // Mantemos o useRef para o buffer não causar lags no app
   const bufferRef = useRef<SensorReading[]>([]);
 
-  // 1. Carregamento inicial e verificação de pendentes
+  // Carregamento inicial e sincronização offline
   useEffect(() => {
     const inicializarConstantes = async () => {
-      // Se tiver internet ao abrir o app, limpa o que ficou pendente antes
       if (navigator.onLine) {
         await db.sincronizarPendentes();
       }
@@ -57,13 +71,10 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
     inicializarConstantes();
   }, []);
 
-  // 2. MOTOR DE ESCUTA DA REDE (Sincronização em Background)
+  // Sincronização em background ao retomar conexão
   useEffect(() => {
     const lidarComVoltaDaInternet = async () => {
-      console.log('📡 Conexão restabelecida! Sincronizando dados pendentes com a nuvem...');
       await db.sincronizarPendentes();
-      
-      // Atualiza a lista da tela para trocar as flags locais de synced: false para true
       const dadosAtualizados = await db.listarEventos();
       setEvents(dadosAtualizados);
     };
@@ -72,21 +83,54 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('online', lidarComVoltaDaInternet);
   }, []);
 
+  // Motor do simulador rodando em background global
+  useEffect(() => {
+    const intervaloGlobal = setInterval(() => {
+      const leituraInstantanea = {
+        spo2: Math.floor(Math.random() * (100 - 95 + 1)) + 95,
+        heartRate: Math.floor(Math.random() * (115 - 65 + 1)) + 65,
+        accelerationG: getADXL345DataGlobal()
+      };
+      
+      handleIncomingData(leituraInstantanea);
+    }, 1000);
+
+    return () => clearInterval(intervaloGlobal);
+  }, []);
+
   const handleIncomingData = (reading: SensorReading) => {
     bufferRef.current.push(reading);
+    // Mantém estritamente a janela máxima dos últimos 30 segundos salvos
     if (bufferRef.current.length > 30) {
       bufferRef.current.shift();
     }
   };
 
   const addEvent = async (label: string) => {
-    const bufferInterno = bufferRef.current.length > 0 
-      ? [...bufferRef.current] 
-      : [{ spo2: 98, heartRate: 80, accelerationG: 1.0 }];
+    // Coleta estritamente o histórico real contido no buffer até este exato momento
+    const leiturasAtuais = [...bufferRef.current];
 
-    const avgSpo2 = Math.round(bufferInterno.reduce((acc, curr) => acc + curr.spo2, 0) / bufferInterno.length);
-    const avgHr = Math.round(bufferInterno.reduce((acc, curr) => acc + curr.heartRate, 0) / bufferInterno.length);
-    const maxG = Math.max(...bufferInterno.map(item => item.accelerationG));
+    // Fallback de segurança: Se o app acabou de abrir e não deu tempo de gerar nenhuma leitura
+    if (leiturasAtuais.length === 0) {
+      leiturasAtuais.push({
+        spo2: 98,
+        heartRate: 80,
+        accelerationG: 1.0
+      });
+    }
+
+    // Cálculos estatísticos calculados de forma dinâmica baseados no tempo decorrido real
+    const avgSpo2 = Math.round(leiturasAtuais.reduce((acc, curr) => acc + curr.spo2, 0) / leiturasAtuais.length);
+    const avgHr = Math.round(leiturasAtuais.reduce((acc, curr) => acc + curr.heartRate, 0) / leiturasAtuais.length);
+    const maxG = Math.max(...leiturasAtuais.map(item => item.accelerationG));
+
+    // Mapeamento sequencial para o gráfico técnico baseado apenas nos pontos reais obtidos
+    const telemetriaDetalhada = leiturasAtuais.map((leitura, index) => ({
+      segundo: index + 1,
+      spo2: leitura.spo2,
+      heartRate: leitura.heartRate,
+      accelerationG: leitura.accelerationG
+    }));
 
     const novoEventoDados = {
       timestamp: new Date().toISOString(),
@@ -94,15 +138,12 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
       bpm: avgHr,
       spo2: avgSpo2,
       movementClass: maxG > 1.5 ? 'INTENSO' : maxG > 1.15 ? 'MODERADO' : 'BAIXO',
-      accelerationMaxG: maxG
+      accelerationMaxG: maxG,
+      telemetria_detalhada: telemetriaDetalhada
     };
 
-    // Seu db.salvarEvento já cuida de tentar nuvem ou falhar de forma resiliente!
     const eventoSalvo = await db.salvarEvento(novoEventoDados);
     setEvents((prev) => [eventoSalvo, ...(Array.isArray(prev) ? prev : [])]);
-
-    // Reseta o buffer local
-    bufferRef.current = [];
   };
 
   const addMedication = (name: string, dosage: string) => {

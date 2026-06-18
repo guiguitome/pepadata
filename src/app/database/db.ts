@@ -10,6 +10,12 @@ export interface Evento {
   movementClass: string;
   accelerationMaxG: number;
   synced?: boolean;
+  telemetria_detalhada?: {
+    segundo: number;
+    spo2: number;
+    heartRate: number;
+    accelerationG: number;
+  }[];
 }
 
 const STORAGE_KEY = 'pepadata_events';
