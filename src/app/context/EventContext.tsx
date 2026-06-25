@@ -160,7 +160,7 @@ export const EventProvider = ({ children }: { children: React.ReactNode }) => {
       eventType: label,
       bpm: avgHr,
       spo2: avgSpo2,
-      movementClass: maxG > 1.5 ? 'INTENSO' : maxG > 1.15 ? 'MODERADO' : 'BAIXO',
+      movementClass: maxG > 15.0 ? 'INTENSO' : maxG > 10.0 ? 'MODERADO' : 'BAIXO',
       accelerationMaxG: maxG,
       telemetria_detalhada: telemetriaDetalhada
     };

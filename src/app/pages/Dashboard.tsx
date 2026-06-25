@@ -9,9 +9,26 @@ export function Dashboard() {
   const current = chartData[chartData.length - 1];
   
   // Cálculo do módulo da aceleração menos a gravidade terrestre (~9.8 m/s²)
-  const movementLevel = Math.abs(Math.sqrt(current.accX ** 2 + current.accY ** 2 + current.accZ ** 2) - 9.8);
-  const movementBars = movementLevel < 0.3 ? 1 : movementLevel < 1.0 ? 3 : 5;
-  const movementStatus = movementLevel < 0.3 ? 'Baixo' : movementLevel < 1.0 ? 'Moderado' : 'Alto';
+  const accelerationMagnitude = Math.sqrt(current.accX ** 2 + current.accY ** 2 + current.accZ ** 2);
+  const movementLevel = Math.abs(accelerationMagnitude - 9.8);
+
+  // Ajuste de sensibilidade para evitar falsos positivos
+  // Movimentos bruscos ou de crise geram picos muito maiores
+  let movementBars, movementStatus;
+
+  if (movementLevel < 2.5) { 
+    // Repouso, ruído do sensor ou movimentos bem sutis
+    movementBars = 1;
+    movementStatus = 'Baixo';
+  } else if (movementLevel < 10.0) { 
+    // Atividade normal (gesticular, caminhar, mover o braço)
+    movementBars = 3;
+    movementStatus = 'Moderado';
+  } else { 
+    // Movimentos atípicos, bruscos e alta agitação
+    movementBars = 5;
+    movementStatus = 'Alto';
+  }
 
   return (
     <div className="p-6 pb-8 space-y-5 animate-in fade-in duration-500">
