@@ -10,11 +10,18 @@ export const router = createBrowserRouter([
   {
     path: "/",
     Component: Layout,
-    children: [
-      { index: true, Component: Dashboard },
-      { path: "calendar", Component: CalendarLog },
-      { path: "trigger", Component: Trigger },
-      { path: "history", Component: History },
-    ],
   },
 ]);
+
+// export const router = createBrowserRouter([
+//   {
+//     path: "/",
+//     Component: Layout,
+//     children: [
+//       { index: true, Component: Dashboard },
+//       { path: "calendar", Component: CalendarLog },
+//       { path: "trigger", Component: Trigger },
+//       { path: "history", Component: History },
+//     ],
+//   },
+// ]);
