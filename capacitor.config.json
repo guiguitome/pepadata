@@ -1,5 +1,13 @@
 {
   "appId": "br.com.pepadata.app",
   "appName": "Pepadata",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "BluetoothLe": {
+      "displayStrings": {
+        "scanning": "Escaneando dispositivos...",
+        "connecting": "Conectando à ESP32-H2..."
+      }
+    }
+  }
 }
