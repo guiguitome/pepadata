@@ -58,14 +58,14 @@ export function History() {
             {isEventsArray ? events.length : 0} Eventos Registrados
           </p>
         </div>
-        <button 
+        {/* <button 
           onClick={handleExportCSV}
           disabled={!isEventsArray || events.length === 0}
           className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 shadow-sm rounded-full text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download size={14} className="text-slate-500" />
           Exportar CSV
-        </button>
+        </button> */}
       </header>
 
       <div className="bg-white rounded-[1.5rem] shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-slate-100 overflow-hidden">
