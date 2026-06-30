@@ -245,13 +245,13 @@ export function CalendarLog() {
                 <span className="text-sm font-semibold text-slate-700">Adicionar Medicamento</span>
                 <div className="bg-purple-100 text-purple-600 p-2 rounded-full"><Pill size={18} /></div>
               </button>
-              <button 
+              {/* <button 
                 onClick={() => { setMenuOpen(false); navigate('/trigger'); }}
                 className="flex items-center gap-3 bg-white px-4 py-3 rounded-2xl shadow-lg border border-slate-100"
               >
                 <span className="text-sm font-semibold text-slate-700">Registrar Evento</span>
                 <div className="bg-blue-100 text-blue-600 p-2 rounded-full"><Activity size={18} /></div>
-              </button>
+              </button> */}
             </motion.div>
           )}
         </AnimatePresence>
